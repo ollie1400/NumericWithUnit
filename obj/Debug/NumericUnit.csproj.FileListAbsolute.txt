@@ -1,0 +1,7 @@
+D:\Technical\Code - Git\Csharp\Components\NumericUnit\NumericUnit\bin\Debug\NumericUnit.dll
+D:\Technical\Code - Git\Csharp\Components\NumericUnit\NumericUnit\bin\Debug\NumericUnit.pdb
+D:\Technical\Code - Git\Csharp\Components\NumericUnit\NumericUnit\obj\Debug\NumericUnit.csproj.GenerateResource.Cache
+D:\Technical\Code - Git\Csharp\Components\NumericUnit\NumericUnit\obj\Debug\NumericUnit.dll
+D:\Technical\Code - Git\Csharp\Components\NumericUnit\NumericUnit\obj\Debug\NumericUnit.pdb
+D:\Technical\Code - Git\Csharp\Components\NumericUnit\NumericUnit\obj\Debug\NumericUnit.csprojResolveAssemblyReference.cache
+D:\Technical\Code - Git\Csharp\Components\NumericUnit\NumericUnit\obj\Debug\NumericUnit.NumericWithUnit.resources
