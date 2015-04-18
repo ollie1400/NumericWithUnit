@@ -21,7 +21,15 @@ namespace NumericUnit
         {
             public string UnitString {get; private set;}
             public double UnitValue{get; private set;}
+            /// <summary>
+            /// Creates a Unit which represents the value 1 (no unit).
+            /// </summary>
             public Unit() { UnitString = ""; UnitValue = 1; }
+            /// <summary>
+            /// Creates a Unit which represents a value.
+            /// </summary>
+            /// <param name="unitString">The unit string ("milliseconds", "kilograms"...).</param>
+            /// <param name="unitValue">The value of the unit in base units (if working in SI units, "milliseconds" would have the value 0.001).</param>
             public Unit(string unitString, double unitValue)
             {
                 UnitString = unitString;
@@ -40,9 +48,18 @@ namespace NumericUnit
         private string numberRegexString = "(?=[\\s]*)[0-9]+(.)?[0-9]*(?<=[\\s]*)";
 
         // max and min values
+        /// <summary>
+        /// The Maximum allowed value (after conversion to base unit).
+        /// </summary>
         public double Maximum { get; set; }
+        /// <summary>
+        /// The Minimum allowed value (after conversion to base unit).
+        /// </summary>
         public double Minimum { get; set; }
         private double value;
+        /// <summary>
+        /// The current value held in the control (after conversion to base unit).
+        /// </summary>
         public double Value
         {
             get { return value; }
@@ -57,6 +74,20 @@ namespace NumericUnit
             }
         }
         public override string Text { get { return textBox.Text; } set { textBox.Text = value; } }
+
+        // colours
+        /// <summary>
+        /// The color that the background is set to when a correct value is entered, before pressing enter.
+        /// </summary>
+        public Color CorrectColor { get; set; }
+        /// <summary>
+        /// The color that the background is set to when an incorrect value is entered.
+        /// </summary>
+        public Color IncorrectColor { get; set; }
+        /// <summary>
+        /// The default background color of the control.
+        /// </summary>
+        public override Color BackColor { get; set; }
 
         // value changed event
         public event EventHandler<EventArgs> ValueChanged;
@@ -75,10 +106,16 @@ namespace NumericUnit
             //AllowedUnits.Add(new Tuple<string, double>("mus", 1e-6));
             //AllowedUnits.Add(new Tuple<string, double>("ns", 1e-9));
             //AllowedUnits.Add(new Tuple<string, double>("fs", 1e-12));
-            //Minimum = 0;
-            //Maximum = 5e-2;
+            Minimum = 0;
+            Maximum = 1;
+            
+            // defaults
+            CorrectColor = Color.LightGreen;
+            IncorrectColor = Color.Red;
+            BackColor = Color.White;
 
-            //rebuildRegex();
+            // initial build of regex
+            rebuildRegex();
 
             // listeners
             AllowedUnits.CollectionChanged += (o, e) => rebuildRegex();
@@ -146,7 +183,7 @@ namespace NumericUnit
 
 
         /// <summary>
-        /// Key pressed.  Check that format is correct
+        /// Key pressed.  Check that format is correct.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -166,7 +203,7 @@ namespace NumericUnit
                 {
                     // succes, set value and clear BG colour
                     value = number;
-                    textBox.BackColor = Color.White;
+                    textBox.BackColor = BackColor;
                     if (ValueChanged != null) ValueChanged(this, new EventArgs());
                 }
             }
@@ -190,7 +227,7 @@ namespace NumericUnit
 
                 allowed = extractValue(out number);
 
-                textBox.BackColor = allowed ? Color.LightGreen : Color.Red;
+                textBox.BackColor = allowed ? CorrectColor : IncorrectColor;
             }
             internalSet = false;
         }
@@ -217,7 +254,11 @@ namespace NumericUnit
                 // try to parse
                 if (Double.TryParse(numberString, out number))
                 {
-                    double unitValue = AllowedUnits.Where(uw => uw.UnitString == unit).ToList()[0].UnitValue;
+                    double unitValue = 1;
+                    if (AllowedUnits.Count > 0)
+                    {
+                        unitValue = AllowedUnits.Where(uw => uw.UnitString == unit).ToList()[0].UnitValue;
+                    }
 
                     // get real value
                     number = number * unitValue;
@@ -241,6 +282,7 @@ namespace NumericUnit
         private string makeString(double value)
         {
             Unit unit;
+            string numberText;
             if (AllowedUnits.Count > 0)
             {
                 // to find the best unit, got throug all units until we find one that is lower than the value
@@ -255,14 +297,16 @@ namespace NumericUnit
                         break;
                     }
                 }
+
+                // make text
+                numberText = "" + value / unit.UnitValue + " " + unit.UnitString;
             }
             else
             {
-                unit = new Unit("", 1);
+                // else assume no unit
+                numberText = "" + value;
             }
 
-            // now make the thing
-            string numberText = "" + value / unit.UnitValue + " " + unit.UnitString;
             return numberText;
         }
 
