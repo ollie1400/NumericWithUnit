@@ -12,15 +12,17 @@ using System.Text.RegularExpressions;
 
 namespace NumericUnit
 {
-    public partial class NumericWithUnit: UserControl
+    public partial class NumericWithUnit : TextBox
     {
+
+
         /// <summary>
         /// A description of a Unit
         /// </summary>
         public class Unit
         {
-            public string UnitString {get; private set;}
-            public double UnitValue{get; private set;}
+            public string UnitString { get; private set; }
+            public double UnitValue { get; private set; }
             /// <summary>
             /// Creates a Unit which represents the value 1 (no unit).
             /// </summary>
@@ -73,7 +75,6 @@ namespace NumericUnit
                 Text = makeString(this.value);
             }
         }
-        public override string Text { get { return textBox.Text; } set { textBox.Text = value; } }
 
         // colours
         /// <summary>
@@ -87,14 +88,12 @@ namespace NumericUnit
         /// <summary>
         /// The default background color of the control.
         /// </summary>
-        public override Color BackColor { get; set; }
+        public Color DefaultColor { get; set; }
 
         // value changed event
         public event EventHandler<EventArgs> ValueChanged;
-        
         public NumericWithUnit()
         {
-            
             InitializeComponent();
 
             // unitsAllowedUnits
@@ -112,13 +111,16 @@ namespace NumericUnit
             // defaults
             CorrectColor = Color.LightGreen;
             IncorrectColor = Color.Red;
-            BackColor = Color.White;
+            DefaultColor = Color.White;
 
             // initial build of regex
             rebuildRegex();
 
             // listeners
             AllowedUnits.CollectionChanged += (o, e) => rebuildRegex();
+            TextChanged += textBox_TextChanged;
+            KeyDown += textBox_KeyDown;
+            KeyPress += textBox_KeyPress;
         }
 
         private void rebuildRegex()
@@ -135,7 +137,11 @@ namespace NumericUnit
                     unitsRegexString += AllowedUnits[i].UnitString + "|";
                 }
                 unitsRegexString = unitsRegexString.Remove(unitsRegexString.Length - 1);
-                unitsRegexString += ")$";
+                unitsRegexString += ")(?<=[\\s]*)$";
+            }
+            else
+            {
+                unitsRegexString = "(?<=[\\s]*)$";
             }
 
             formatRegex = new Regex(regexString + unitsRegexString);
@@ -197,16 +203,32 @@ namespace NumericUnit
             // enter?
             if (enterKey)
             {
-                // try to convert
-                double number;
-                if (extractValue(out number))
-                {
-                    // succes, set value and clear BG colour
-                    value = number;
-                    textBox.BackColor = BackColor;
-                    if (ValueChanged != null) ValueChanged(this, new EventArgs());
-                }
+                VerifyInput();
             }
+        }
+
+
+        /// <summary>
+        /// Try to verify the input
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyInput()
+        {
+            // try to convert
+            double number;
+            bool verified = extractValue(out number);
+            if (verified)
+            {
+                // succes, set value and clear BG colour
+                value = number;
+                BackColor = DefaultColor;
+                if (ValueChanged != null) ValueChanged(this, new EventArgs());
+            }
+            else
+            {
+                BackColor = IncorrectColor;
+            }
+            return verified;
         }
 
 
@@ -221,14 +243,11 @@ namespace NumericUnit
             double number;
 
             // if an internal set, don't do anything
-            if (!internalSet)
-            {
-                MatchCollection matches = formatRegex.Matches(textBox.Text);
+            MatchCollection matches = formatRegex.Matches(Text);
 
-                allowed = extractValue(out number);
+            allowed = extractValue(out number);
 
-                textBox.BackColor = allowed ? CorrectColor : IncorrectColor;
-            }
+            if (!internalSet) BackColor = allowed ? CorrectColor : IncorrectColor;
             internalSet = false;
         }
 
@@ -240,7 +259,7 @@ namespace NumericUnit
         /// <returns></returns>
         private bool extractValue(out double number)
         {
-            MatchCollection matches = formatRegex.Matches(textBox.Text);
+            MatchCollection matches = formatRegex.Matches(Text);
             number = -1;
             bool allowed = false;
 
@@ -248,8 +267,8 @@ namespace NumericUnit
             if (matches.Count == 1)
             {
                 // try to extract the number and the unit
-                string numberString = new Regex(numberRegexString).Match(textBox.Text).Value.Trim();
-                string unit = new Regex(unitsRegexString).Match(textBox.Text).Value.Trim();
+                string numberString = new Regex(numberRegexString).Match(Text).Value.Trim();
+                string unit = new Regex(unitsRegexString).Match(Text).Value.Trim();
 
                 // try to parse
                 if (Double.TryParse(numberString, out number))
@@ -309,6 +328,5 @@ namespace NumericUnit
 
             return numberText;
         }
-
     }
 }
