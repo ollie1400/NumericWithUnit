@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
@@ -47,7 +48,7 @@ namespace NumericUnit
 
         private Regex formatRegex;
         private string unitsRegexString = "()$";
-        private string numberRegexString = "(?=[\\s]*)[0-9]+(.)?[0-9]*(?<=[\\s]*)";
+        private string numberRegexString = "(?=[\\s]*)[+-]?[0-9]+(.)?[0-9]*(?<=[\\s]*)";
 
         // max and min values
         /// <summary>
@@ -117,17 +118,32 @@ namespace NumericUnit
             rebuildRegex();
 
             // listeners
-            AllowedUnits.CollectionChanged += (o, e) => rebuildRegex();
+            AllowedUnits.CollectionChanged += collectionChanged;
             TextChanged += textBox_TextChanged;
             KeyDown += textBox_KeyDown;
             KeyPress += textBox_KeyPress;
         }
 
+        private void collectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            // need to update?
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                // reorder
+                AllowedUnits = new ObservableCollection<Unit>(AllowedUnits.OrderByDescending(a => a.UnitValue));
+                AllowedUnits.CollectionChanged += collectionChanged;
+
+                // rebuild regexes
+                rebuildRegex();
+            }
+        }
+
+
         private void rebuildRegex()
         {
             string regexString = numberRegexString;
 
-            // add the formats
+            // add the formatsz
             unitsRegexString = "";
             if (AllowedUnits.Count > 0)
             {
@@ -172,7 +188,7 @@ namespace NumericUnit
             letterEntered = (e.KeyCode >= Keys.A && e.KeyCode <= Keys.Z);
 
             // or other allowed keys?
-            bool allowed = numberEntered || letterEntered || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right || e.KeyCode == Keys.Home || e.KeyCode == Keys.End || e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete || e.KeyCode == Keys.Space || e.KeyCode == Keys.Decimal || e.KeyCode == Keys.OemPeriod;
+            bool allowed = numberEntered || letterEntered || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right || e.KeyCode == Keys.Home || e.KeyCode == Keys.End || e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete || e.KeyCode == Keys.Space || e.KeyCode == Keys.Decimal || e.KeyCode == Keys.OemPeriod || e.KeyCode == Keys.OemMinus || e.KeyCode == Keys.Oemplus;
 
             // enter?
             enterKey = e.KeyCode == Keys.Enter;
@@ -309,7 +325,7 @@ namespace NumericUnit
                 unit = AllowedUnits[AllowedUnits.Count - 1];
                 for (int i = 0; i < AllowedUnits.Count; i++)
                 {
-                    if (AllowedUnits[i].UnitValue <= value)
+                    if (Math.Abs(AllowedUnits[i].UnitValue) <= Math.Abs(value))
                     {
                         // pic this unit
                         unit = AllowedUnits[i];
