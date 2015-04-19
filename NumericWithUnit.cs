@@ -100,12 +100,8 @@ namespace NumericUnit
             // unitsAllowedUnits
             AllowedUnits = new ObservableCollection<Unit>();
 
-            // default units
-            //AllowedUnits.Add(new Tuple<string, double>("s", 1));
-            //AllowedUnits.Add(new Tuple<string, double>("ms", 1e-3));
-            //AllowedUnits.Add(new Tuple<string, double>("mus", 1e-6));
-            //AllowedUnits.Add(new Tuple<string, double>("ns", 1e-9));
-            //AllowedUnits.Add(new Tuple<string, double>("fs", 1e-12));
+            // default units (blank one)
+            AllowedUnits.Add(new Unit());
             Minimum = 0;
             Maximum = 1;
             
@@ -239,6 +235,11 @@ namespace NumericUnit
                 value = number;
                 BackColor = DefaultColor;
                 if (ValueChanged != null) ValueChanged(this, new EventArgs());
+
+                // make text as user may have entered just a number
+                allowTextUpdateEvent = false;
+                Text = makeString(value);
+                allowTextUpdateEvent = true;
             }
             else
             {
@@ -247,6 +248,7 @@ namespace NumericUnit
             return verified;
         }
 
+        private bool allowTextUpdateEvent = true;
 
         /// <summary>
         /// Text internally changed.
@@ -255,6 +257,7 @@ namespace NumericUnit
         /// <param name="e"></param>
         private void textBox_TextChanged(object sender, EventArgs e)
         {
+            if (!allowTextUpdateEvent) return;
             bool allowed = false;
             double number;
 
@@ -325,6 +328,9 @@ namespace NumericUnit
                 unit = AllowedUnits[AllowedUnits.Count - 1];
                 for (int i = 0; i < AllowedUnits.Count; i++)
                 {
+                    // skip if the base unit (1)
+                    if (AllowedUnits[i].UnitString == "") continue;
+
                     if (Math.Abs(AllowedUnits[i].UnitValue) <= Math.Abs(value))
                     {
                         // pic this unit
