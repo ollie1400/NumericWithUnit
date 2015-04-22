@@ -91,8 +91,17 @@ namespace NumericUnit
         /// </summary>
         public Color DefaultColor { get; set; }
 
-        // value changed event
+        /// <summary>
+        /// Value of the control was successfully changed.
+        /// </summary>
         public event EventHandler<EventArgs> ValueChanged;
+        /// <summary>
+        /// Enter was pressed on the control which resulted in a successful update of the value.
+        /// </summary>
+        public event EventHandler<EventArgs> EnterPressed;
+
+
+
         public NumericWithUnit()
         {
             InitializeComponent();
@@ -115,9 +124,6 @@ namespace NumericUnit
 
             // listeners
             AllowedUnits.CollectionChanged += collectionChanged;
-            TextChanged += textBox_TextChanged;
-            KeyDown += textBox_KeyDown;
-            KeyPress += textBox_KeyPress;
         }
 
         private void collectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -165,8 +171,9 @@ namespace NumericUnit
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void textBox_KeyDown(object sender, KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
+
             // reset
             forbiddenKey = false;
             enterKey = false;
@@ -197,6 +204,9 @@ namespace NumericUnit
             }
 
             forbiddenKey = !allowed;
+
+            // call base
+            base.OnKeyDown(e);
         }
 
 
@@ -205,8 +215,9 @@ namespace NumericUnit
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void textBox_KeyPress(object sender, KeyPressEventArgs e)
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
+
             if (forbiddenKey)
             {
                 e.Handled = true;
@@ -217,6 +228,9 @@ namespace NumericUnit
             {
                 VerifyInput();
             }
+
+            // base
+            base.OnKeyPress(e);
         }
 
 
@@ -240,6 +254,13 @@ namespace NumericUnit
                 allowTextUpdateEvent = false;
                 Text = makeString(value);
                 allowTextUpdateEvent = true;
+
+                // was enter pressed to get here?
+                if (enterKey)
+                {
+                    // fire event
+                    if (EnterPressed != null) EnterPressed(this, new EventArgs());
+                }
             }
             else
             {
@@ -255,8 +276,9 @@ namespace NumericUnit
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void textBox_TextChanged(object sender, EventArgs e)
+        protected override void OnTextChanged(EventArgs e)
         {
+
             if (!allowTextUpdateEvent) return;
             bool allowed = false;
             double number;
@@ -268,6 +290,9 @@ namespace NumericUnit
 
             if (!internalSet) BackColor = allowed ? CorrectColor : IncorrectColor;
             internalSet = false;
+
+            // base
+            base.OnTextChanged(e);
         }
 
 
