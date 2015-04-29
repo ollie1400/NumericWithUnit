@@ -40,6 +40,9 @@ namespace NumericUnit
             }
         }
 
+        /// <summary>
+        /// A collection of allowed units.
+        /// </summary>
         public ObservableCollection<Unit> AllowedUnits { get; private set; }
 
         private bool forbiddenKey = false;
