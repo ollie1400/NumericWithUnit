@@ -8,18 +8,14 @@ This list must be build before the control is used.
 The control also has a Maximum and Minimum field which are the maximum and minimum allowed values (with NO unit), which must be set.
 
 
-///////////////////////////////////////////////////////////////////
-// Inclusion
-///////////////////////////////////////////////////////////////////
+# Inclusion
 
 To use this as is, either build the project as is then use the DLL made to add to the Toolbox in another project,
 or include the code directly into another project.
 
 To do the former, the full project path MUST NOT INCLUDE THE CHARACTER "#" due to some weird Visual Studio thing.
 
-///////////////////////////////////////////////////////////////////
-// Example usage
-///////////////////////////////////////////////////////////////////
+# Example usage
 
 
 NumericWithUnit nwu = new NumericWithUnit();
@@ -37,9 +33,7 @@ nwu.Minimum = 1e-3;
 nwu.Value = 0.15;
 
 
-///////////////////////////////////////////////////////////////////
-// User Interaction
-///////////////////////////////////////////////////////////////////
+# User Interaction
 
 
 now the object nwu is an instance of NumericWithUnit.
