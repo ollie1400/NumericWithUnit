@@ -51,7 +51,7 @@ namespace NumericUnit
 
         private Regex formatRegex;
         private string unitsRegexString = "()$";
-        private string numberRegexString = "(?=[\\s]*)[+-]?[0-9]+(.)?[0-9]*(?<=[\\s]*)";
+        private string numberRegexString = @"[+-]?[0-9]+\.?[0-9]*\s*";
 
         // max and min values
         /// <summary>
@@ -157,7 +157,7 @@ namespace NumericUnit
                 {
                     unitsRegexString += AllowedUnits[i].UnitString + "|";
                 }
-                unitsRegexString = unitsRegexString.Remove(unitsRegexString.Length - 1);
+                unitsRegexString = unitsRegexString.Remove(unitsRegexString.Length - 1);   // remove trailing "|"
                 unitsRegexString += ")(?<=[\\s]*)$";
             }
             else
@@ -285,10 +285,7 @@ namespace NumericUnit
             if (!allowTextUpdateEvent) return;
             bool allowed = false;
             double number;
-
-            // if an internal set, don't do anything
-            MatchCollection matches = formatRegex.Matches(Text);
-
+            
             allowed = extractValue(out number);
 
             if (!internalSet) BackColor = allowed ? CorrectColor : IncorrectColor;
@@ -306,7 +303,7 @@ namespace NumericUnit
         /// <returns></returns>
         private bool extractValue(out double number)
         {
-            MatchCollection matches = formatRegex.Matches(Text);
+            MatchCollection matches = formatRegex.Matches(Text.Trim());
             number = -1;
             bool allowed = false;
 
@@ -314,8 +311,8 @@ namespace NumericUnit
             if (matches.Count == 1)
             {
                 // try to extract the number and the unit
-                string numberString = new Regex(numberRegexString).Match(Text).Value.Trim();
-                string unit = new Regex(unitsRegexString).Match(Text).Value.Trim();
+                string numberString = new Regex(numberRegexString).Match(Text.Trim()).Value.Trim();
+                string unit = new Regex(unitsRegexString).Match(Text.Trim()).Value.Trim();
 
                 // try to parse
                 if (Double.TryParse(numberString, out number))
