@@ -51,7 +51,8 @@ namespace NumericUnit
 
         private Regex formatRegex;
         private string unitsRegexString = "()$";
-        private string numberRegexString = @"[+-]?[0-9]+\.?[0-9]*\s*";
+        private string numberRegexString = @"[-+]?[0-9]+\.?[0-9]*([eE][-+]?[0-9]+)?\s*";
+        //private string numberRegexString = @"[+-]?[0-9]+\.?[0-9]*\s*";
 
         // max and min values
         /// <summary>
