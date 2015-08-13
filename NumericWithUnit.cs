@@ -81,6 +81,11 @@ namespace NumericUnit
             }
         }
 
+        /// <summary>
+        /// How many Decimal places to allow, relative to SI unit!  e.g. if DecimalPlaces = 3, then 1ms is allowed, but 0.1 ms isn't
+        /// </summary>
+        public int DecimalPlaces { get; set; }
+
         // colours
         /// <summary>
         /// The color that the background is set to when a correct value is entered, before pressing enter.
@@ -117,6 +122,7 @@ namespace NumericUnit
             AllowedUnits.Add(new Unit());
             Minimum = 0;
             Maximum = 1;
+            DecimalPlaces = 13;
             
             // defaults
             CorrectColor = Color.LightGreen;
@@ -326,6 +332,9 @@ namespace NumericUnit
 
                     // get real value
                     number = number * unitValue;
+
+                    // round to decimal places
+                    number = Math.Round(number, DecimalPlaces);
 
                     // within limits?
                     if (number >= Minimum && number <= Maximum)
