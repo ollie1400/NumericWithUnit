@@ -72,12 +72,25 @@ namespace NumericUnit
             get { return value; }
             set
             {
-                this.value = value;
+                // try to set it, throw exceptions if error
+                // these are caught but allow the debugger to catch them if set up in Visual Studio
+                try
+                {
+                    // check range
+                    if (value > Maximum) throw new ArgumentOutOfRangeException("Value", "Tried to set 'Value' to above 'Maximum'.");
+                    if (value < Minimum) throw new ArgumentOutOfRangeException("Value", "Tried to set 'Value' to below 'Minimum'.");
+                    
+                    this.value = value;
 
-                // set the text as well
-                // set flag not to change colour
-                internalSet = true;
-                Text = makeString(this.value);
+                    // set the text as well
+                    // set flag not to change colour
+                    internalSet = true;
+                    Text = makeString(this.value);
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    // do nothing with it
+                }
             }
         }
 
@@ -85,6 +98,31 @@ namespace NumericUnit
         /// How many Decimal places to allow, relative to SI unit!  e.g. if DecimalPlaces = 3, then 1ms is allowed, but 0.1 ms isn't
         /// </summary>
         public int DecimalPlaces { get; set; }
+
+        /// <summary>
+        /// The format string used to generate the UI Text.  Must be a valid format string for the arguments {0} being the double value, and {1} being a the unit string.
+        /// </summary>
+        public string DisplayFormat
+        {
+            get { return _displayFormat; }
+            set
+            {
+                // test the display format to make sure it is correct
+                // just try to format something simple
+                try
+                {
+                    if (value != null) String.Format(value, 0, "V");
+                    
+                    // we got this far, so format should be ok!
+                    _displayFormat = value;
+                }
+                catch (FormatException ex)
+                {
+                    // don't do anything with it
+                }
+            }
+        }
+        private string _displayFormat;
 
         // colours
         /// <summary>
@@ -123,6 +161,7 @@ namespace NumericUnit
             Minimum = 0;
             Maximum = 1;
             DecimalPlaces = 13;
+            DisplayFormat = null;
             
             // defaults
             CorrectColor = Color.LightGreen;
@@ -375,7 +414,14 @@ namespace NumericUnit
                 }
 
                 // make text
-                numberText = "" + value / unit.UnitValue + " " + unit.UnitString;
+                if (DisplayFormat == null)
+                {
+                    numberText = "" + value / unit.UnitValue + " " + unit.UnitString;
+                }
+                else
+                {
+                    numberText = String.Format(DisplayFormat, value / unit.UnitValue, unit.UnitString);
+                }
             }
             else
             {
