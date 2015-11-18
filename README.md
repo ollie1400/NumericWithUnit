@@ -15,6 +15,8 @@ or include the code directly into another project.
 
 To do the former, the full project path MUST NOT INCLUDE THE CHARACTER "#" due to some weird Visual Studio thing.
 
+Available as a NuGet package (https://www.nuget.org/packages/NumericWithUnit/).  To use the Control with Visual Studio after installing, navigate to the DLL in the file explorer, drag and drop the DLL into the ToolBox in Visual Studio.
+
 # Example usage
 
 ```
