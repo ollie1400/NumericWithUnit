@@ -38,7 +38,7 @@ nwu.Value = 0.15;
 # User Interaction
 
 
-now the object nwu is an instance of `NumericWithUnit`.
+now the object `nwu` is an instance of `NumericWithUnit`.
 
 The user can type in values.
 If the value is in the correct format such as "100.4 ms", then the number and unit are extracted, and this is converted to a dimensionless number.
@@ -49,3 +49,7 @@ This is within the maximum and minimum (1e-3 >= 0.1 >= 100) so the background co
 Now, if the user presses Enter, or `VerifyInput()` is called the internal value of the control is updated to 0.1, and the `ValueChanged` event is fired.  If the Enter key was pressed, the `EnterPressed` event is also fired (after).
 
 If the input is either in the wrong format (e.g. "1.5. f4" or something like this which is clearly wrong), or outside the allowed bounds, the background colour is set to `IncorrectColor`.
+
+# Test Project
+
+The NumericUnitTest project has a simple WinForm with a `NumericWithUnit` component and a few buttons demonstrating the control.
