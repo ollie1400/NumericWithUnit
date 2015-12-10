@@ -86,6 +86,7 @@ namespace NumericUnit
                     // set flag not to change colour
                     internalSet = true;
                     Text = makeString(this.value);
+                    internalSet = false;
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {

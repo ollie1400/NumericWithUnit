@@ -55,5 +55,10 @@ namespace NumericUnitTest
         {
             MessageBox.Show("Unitless value is " + numericWithUnit1.Value.ToString("F" + numericWithUnit1.DecimalPlaces));
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            numericWithUnit1.Text = "3 s";
+        }
     }
 }

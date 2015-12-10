@@ -31,6 +31,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             this.numericWithUnit1 = new NumericUnit.NumericWithUnit();
             this.SuspendLayout();
             // 
@@ -64,32 +65,42 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(13, 137);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(132, 23);
+            this.button4.TabIndex = 4;
+            this.button4.Text = "Set text";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // numericWithUnit1
             // 
-            this.numericWithUnit1.BackColor = System.Drawing.Color.LightGreen;
+            this.numericWithUnit1.BackColor = System.Drawing.Color.Red;
             this.numericWithUnit1.CorrectColor = System.Drawing.Color.LightGreen;
             this.numericWithUnit1.DecimalPlaces = 13;
             this.numericWithUnit1.DefaultColor = System.Drawing.Color.White;
             this.numericWithUnit1.DisplayFormat = null;
             this.numericWithUnit1.IncorrectColor = System.Drawing.Color.Red;
-            this.numericWithUnit1.Location = new System.Drawing.Point(12, 12);
+            this.numericWithUnit1.Location = new System.Drawing.Point(13, 13);
             this.numericWithUnit1.Maximum = 1D;
             this.numericWithUnit1.Minimum = 0D;
             this.numericWithUnit1.Name = "numericWithUnit1";
-            this.numericWithUnit1.Size = new System.Drawing.Size(209, 20);
-            this.numericWithUnit1.TabIndex = 0;
+            this.numericWithUnit1.Size = new System.Drawing.Size(131, 20);
+            this.numericWithUnit1.TabIndex = 5;
             this.numericWithUnit1.Value = 0D;
-            this.numericWithUnit1.TextChanged += new System.EventHandler(this.numericWithUnit1_TextChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(239, 196);
+            this.Controls.Add(this.numericWithUnit1);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.numericWithUnit1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -99,11 +110,11 @@
         }
 
         #endregion
-
-        private NumericUnit.NumericWithUnit numericWithUnit1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
+        private NumericUnit.NumericWithUnit numericWithUnit1;
     }
 }
 
