@@ -51,7 +51,7 @@ namespace NumericUnit
 
         private Regex formatRegex;
         private string unitsRegexString = "()$";
-        private string numberRegexString = @"[-+]?[0-9]+\.?[0-9]*([eE][-+]?[0-9]+)?\s*";
+        private string numberRegexString = @"^\s*[-+]?[0-9]+\.?[0-9]*([eE][-+]?[0-9]+)?\s*";
         //private string numberRegexString = @"[+-]?[0-9]+\.?[0-9]*\s*";
 
         // max and min values
@@ -91,6 +91,23 @@ namespace NumericUnit
                 {
                     // do nothing with it
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current text in the NumericWithUnit.
+        /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override string Text
+        {
+            get
+            {
+                return base.Text;
+            }
+
+            set
+            {
+                base.Text = value;
             }
         }
 
@@ -260,6 +277,30 @@ namespace NumericUnit
 
 
         /// <summary>
+        /// Raises the Control.KeyUp event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            // reset
+            forbiddenKey = false;
+            enterKey = false;
+
+            // call base
+            base.OnKeyUp(e);
+        }
+
+        protected override void OnLeave(EventArgs e)
+        {
+            // reset
+            forbiddenKey = false;
+            enterKey = false;
+
+            // call base
+            base.OnLeave(e);
+        }
+
+        /// <summary>
         /// Key pressed.  Check that format is correct.
         /// </summary>
         /// <param name="sender"></param>
@@ -334,7 +375,7 @@ namespace NumericUnit
             
             allowed = extractValue(out number);
 
-            if (!internalSet) BackColor = allowed ? CorrectColor : IncorrectColor;
+            BackColor = !internalSet ? (allowed ? CorrectColor : IncorrectColor) : DefaultColor;
             internalSet = false;
 
             // base
@@ -416,7 +457,7 @@ namespace NumericUnit
                 // make text
                 if (DisplayFormat == null)
                 {
-                    numberText = "" + value / unit.UnitValue + " " + unit.UnitString;
+                    numberText = "" + value / unit.UnitValue + (unit.UnitString == "" ? "" : " " + unit.UnitString);
                 }
                 else
                 {
