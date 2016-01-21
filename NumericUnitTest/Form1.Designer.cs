@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -77,7 +78,7 @@
             // 
             // numericWithUnit1
             // 
-            this.numericWithUnit1.BackColor = System.Drawing.Color.Red;
+            this.numericWithUnit1.BackColor = System.Drawing.Color.White;
             this.numericWithUnit1.CorrectColor = System.Drawing.Color.LightGreen;
             this.numericWithUnit1.DecimalPlaces = 13;
             this.numericWithUnit1.DefaultColor = System.Drawing.Color.White;
@@ -89,6 +90,7 @@
             this.numericWithUnit1.Name = "numericWithUnit1";
             this.numericWithUnit1.Size = new System.Drawing.Size(131, 20);
             this.numericWithUnit1.TabIndex = 5;
+            this.numericWithUnit1.TestUnits.Add(((NumericUnit.NumericWithUnit.Unit)(resources.GetObject("numericWithUnit1.TestUnits"))));
             this.numericWithUnit1.Value = 0D;
             // 
             // Form1

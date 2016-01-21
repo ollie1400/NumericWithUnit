@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.ComponentModel.Design.Serialization;
 using System.Drawing;
 using System.Data;
 using System.Linq;
@@ -10,20 +12,61 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Windows.Forms.Design;
+using System.Globalization;
+using System.Reflection;
 
 namespace NumericUnit
 {
+    [Description("A text box that accepts numeric input followed by a character string.  Together these are interpreted as a number and a unit (one of the units of the AllowedUnits collection)")]
     public partial class NumericWithUnit : TextBox
     {
+        //internal class AllowedUnitsCollectionEditor : CollectionEditor
+        //{
 
+        //    public AllowedUnitsCollectionEditor(Type type) : base(type) { }
 
+        //    public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        //    {
+        //        object result = base.EditValue(context, provider, value);
+
+        //        // assign the temporary collection from the UI to the property
+        //        ((NumericWithUnit)context.Instance).AllowedUnits = (ObservableCollection<Unit>)result;
+
+        //        return result;
+        //    }
+        //}
+
+        internal class UnitConverter : TypeConverter
+        {
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+            {
+                return destinationType == typeof(InstanceDescriptor) || base.CanConvertTo(context, destinationType);
+            }
+
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            {
+                if (destinationType == typeof(InstanceDescriptor) && value is Unit)
+                {
+                    ConstructorInfo constructor = typeof(Unit).GetConstructor(new[] { typeof(string), typeof(double) });
+
+                    var filter = value as Unit;
+                    var descriptor = new InstanceDescriptor(constructor, new object[] { filter.UnitString, filter.UnitValue }, true);
+
+                    return descriptor;
+                }
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+        }
+
+        [Serializable]
         /// <summary>
         /// A description of a Unit
         /// </summary>
         public class Unit
         {
-            public string UnitString { get; private set; }
-            public double UnitValue { get; private set; }
+            public string UnitString { get; set; }
+            public double UnitValue { get; set; }
             /// <summary>
             /// Creates a Unit which represents the value 1 (no unit).
             /// </summary>
@@ -40,10 +83,19 @@ namespace NumericUnit
             }
         }
 
+        [Description("A collection of allowed units.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(typeof(CollectionEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [TypeConverter(typeof(UnitConverter))]
         /// <summary>
         /// A collection of allowed units.
         /// </summary>
-        public ObservableCollection<Unit> AllowedUnits { get; private set; }
+        public ObservableCollection<Unit> AllowedUnits { get; set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(typeof(CollectionEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [TypeConverter(typeof(UnitConverter))]
+        public List<Unit> TestUnits { get; set; }
 
         private bool forbiddenKey = false;
         private bool enterKey = false;
@@ -54,18 +106,26 @@ namespace NumericUnit
         private string numberRegexString = @"^\s*[-+]?[0-9]+\.?[0-9]*([eE][-+]?[0-9]+)?\s*";
         //private string numberRegexString = @"[+-]?[0-9]+\.?[0-9]*\s*";
 
-        // max and min values
+        [Description("The Maximum (unitless) value allowed to be entered.")]
+        [Category("Data")]
         /// <summary>
-        /// The Maximum allowed value (after conversion to base unit).
+        /// The Maximum (unitless) value allowed to be entered.
         /// </summary>
         public double Maximum { get; set; }
+
+        [Description("The Minimum (unitless) value allowed to be entered.")]
+        [Category("Data")]
         /// <summary>
-        /// The Minimum allowed value (after conversion to base unit).
+        /// The Minimum (unitless) value allowed to be entered.
         /// </summary>
         public double Minimum { get; set; }
+
         private double value;
+
+        [Description("The current (unitless) value.")]
+        [Category("Appearance")]
         /// <summary>
-        /// The current value held in the control (after conversion to base unit).
+        /// The current (unitless) value.
         /// </summary>
         public double Value
         {
@@ -95,10 +155,12 @@ namespace NumericUnit
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Description("The text shown.")]
+        [Category("Appearance")]
         /// <summary>
         /// Gets or sets the current text in the NumericWithUnit.
         /// </summary>
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override string Text
         {
             get
@@ -112,11 +174,15 @@ namespace NumericUnit
             }
         }
 
+        [Description("The number of decimal round the value up to.")]
+        [Category("Data")]
         /// <summary>
         /// How many Decimal places to allow, relative to SI unit!  e.g. if DecimalPlaces = 3, then 1ms is allowed, but 0.1 ms isn't
         /// </summary>
         public int DecimalPlaces { get; set; }
 
+        [Description("The format string used to generate the UI Text.  Must be a valid format string for the arguments {0} being the double value, and {1} being a the unit string.")]
+        [Category("Data")]
         /// <summary>
         /// The format string used to generate the UI Text.  Must be a valid format string for the arguments {0} being the double value, and {1} being a the unit string.
         /// </summary>
@@ -142,24 +208,36 @@ namespace NumericUnit
         }
         private string _displayFormat;
 
-        // colours
+        [Description("The color that the background is set to when a correct value is entered, before pressing enter.")]
+        [Category("Appearance")]
         /// <summary>
         /// The color that the background is set to when a correct value is entered, before pressing enter.
         /// </summary>
         public Color CorrectColor { get; set; }
+
+        [Description("The color that the background is set to when an incorrect value is entered.")]
+        [Category("Appearance")]
         /// <summary>
         /// The color that the background is set to when an incorrect value is entered.
         /// </summary>
         public Color IncorrectColor { get; set; }
+
+        [Description("The default background color of the control.")]
+        [Category("Appearance")]
         /// <summary>
         /// The default background color of the control.
         /// </summary>
         public Color DefaultColor { get; set; }
 
+        [Description("Event raised when the internal value of the control was successfully changed.")]
+        [Category("Action")]
         /// <summary>
         /// Value of the control was successfully changed.
         /// </summary>
         public event EventHandler<EventArgs> ValueChanged;
+        
+        [Description("Event raised when the Enter key was pressed on the control which reuslted in a successfull update of the value.")]
+        [Category("Action")]
         /// <summary>
         /// Enter was pressed on the control which resulted in a successful update of the value.
         /// </summary>
@@ -173,6 +251,7 @@ namespace NumericUnit
 
             // unitsAllowedUnits
             AllowedUnits = new ObservableCollection<Unit>();
+            TestUnits = new List<Unit>();
 
             // default units (blank one)
             AllowedUnits.Add(new Unit());
