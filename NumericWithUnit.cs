@@ -428,7 +428,8 @@ namespace NumericUnit
                 // was enter pressed to get here?
                 if (enterKey)
                 {
-                    // fire event
+                    // reset and fire event
+                    enterKey = false;  // must reset in case the handler has VerifyInput() inside => stack overflow
                     if (EnterPressed != null) EnterPressed(this, new EventArgs());
                 }
             }
