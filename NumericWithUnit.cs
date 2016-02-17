@@ -84,7 +84,8 @@ namespace NumericUnit
         }
 
         [Description("A collection of allowed units.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Editor(typeof(CollectionEditor), typeof(System.Drawing.Design.UITypeEditor))]
         [TypeConverter(typeof(UnitConverter))]
         /// <summary>
