@@ -19,7 +19,7 @@ using System.Reflection;
 namespace NumericUnit
 {
     [Description("A text box that accepts numeric input followed by a character string.  Together these are interpreted as a number and a unit (one of the units of the AllowedUnits collection)")]
-    public partial class NumericWithUnit : TextBox
+    public partial class NumericWithUnit : TextBox, INotifyPropertyChanged
     {
         //internal class AllowedUnitsCollectionEditor : CollectionEditor
         //{
@@ -125,6 +125,7 @@ namespace NumericUnit
 
         [Description("The current (unitless) value.")]
         [Category("Appearance")]
+        [Bindable(true)]
         /// <summary>
         /// The current (unitless) value.
         /// </summary>
@@ -243,8 +244,7 @@ namespace NumericUnit
         /// Enter was pressed on the control which resulted in a successful update of the value.
         /// </summary>
         public event EventHandler<EventArgs> EnterPressed;
-
-
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public NumericWithUnit()
         {
@@ -419,7 +419,8 @@ namespace NumericUnit
                 // succes, set value and clear BG colour
                 value = number;
                 BackColor = DefaultColor;
-                if (ValueChanged != null) ValueChanged(this, new EventArgs());
+                if (ValueChanged != null) ValueChanged(this, EventArgs.Empty);
+                if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("Value"));
 
                 // make text as user may have entered just a number
                 allowTextUpdateEvent = false;
@@ -431,7 +432,7 @@ namespace NumericUnit
                 {
                     // reset and fire event
                     enterKey = false;  // must reset in case the handler has VerifyInput() inside => stack overflow
-                    if (EnterPressed != null) EnterPressed(this, new EventArgs());
+                    if (EnterPressed != null) EnterPressed(this, EventArgs.Empty);
                 }
             }
             else
