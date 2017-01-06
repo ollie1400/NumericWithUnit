@@ -41,7 +41,7 @@ nwu.Value = 0.15;
 now the object `nwu` is an instance of `NumericWithUnit`.
 
 The user can type in values.
-If the value is in the correct format such as "100.4 ms", then the number and unit are extracted, and this is converted to a dimensionless number.
+If the value is in the correct format such as "100 ms", then the number and unit are extracted, and this is converted to a dimensionless number.
 In this case "ms" corresponds to 1e-3.
 "100 ms" then is converted to 100 * 1e-3 = 0.1
 This is within the maximum and minimum (1e-3 >= 0.1 >= 100) so the background colour of the control is set to `CorrectColor`.
