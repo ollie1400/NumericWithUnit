@@ -18,8 +18,9 @@ using System.Reflection;
 
 namespace NumericUnit
 {
+    [DefaultEvent("EnterPressed")]
     [Description("A text box that accepts numeric input followed by a character string.  Together these are interpreted as a number and a unit (one of the units of the AllowedUnits collection)")]
-    public partial class NumericWithUnit : TextBox, INotifyPropertyChanged
+    public partial class NumericWithUnit : TextBox//, INotifyPropertyChanged
     {
         //internal class AllowedUnitsCollectionEditor : CollectionEditor
         //{
@@ -141,7 +142,7 @@ namespace NumericUnit
                     // check range
                     if (value > Maximum) throw new ArgumentOutOfRangeException("Value", "Tried to set 'Value' to above 'Maximum'.");
                     if (value < Minimum) throw new ArgumentOutOfRangeException("Value", "Tried to set 'Value' to below 'Minimum'.");
-                    
+
                     this.value = value;
 
                     // set the text as well
@@ -179,9 +180,23 @@ namespace NumericUnit
         [Description("The number of decimal round the value up to.")]
         [Category("Data")]
         /// <summary>
-        /// How many Decimal places to allow, relative to SI unit!  e.g. if DecimalPlaces = 3, then 1ms is allowed, but 0.1 ms isn't
+        /// How many Decimal places to display
         /// </summary>
-        public int DecimalPlaces { get; set; }
+        public uint DecimalPlaces
+        {
+            get { return _DecimalPlaces; }
+            set
+            {
+                _DecimalPlaces = value;
+
+                // string might have changed, so remake it
+                internalSet = true;
+                Text = makeString(this.value);
+                internalSet = false;
+            }
+        }
+    
+        public uint _DecimalPlaces = 10;
 
         [Description("The format string used to generate the UI Text.  Must be a valid format string for the arguments {0} being the double value, and {1} being a the unit string.")]
         [Category("Data")]
@@ -201,6 +216,11 @@ namespace NumericUnit
                     
                     // we got this far, so format should be ok!
                     _displayFormat = value;
+
+                    // string might have changed, so remake it
+                    internalSet = true;
+                    Text = makeString(this.value);
+                    internalSet = false;
                 }
                 catch (FormatException ex)
                 {
@@ -244,7 +264,7 @@ namespace NumericUnit
         /// Enter was pressed on the control which resulted in a successful update of the value.
         /// </summary>
         public event EventHandler<EventArgs> EnterPressed;
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
         public NumericWithUnit()
         {
@@ -258,7 +278,7 @@ namespace NumericUnit
             AllowedUnits.Add(new Unit());
             Minimum = 0;
             Maximum = 1;
-            DecimalPlaces = 13;
+            _DecimalPlaces = 10;
             DisplayFormat = null;
             
             // defaults
@@ -420,7 +440,7 @@ namespace NumericUnit
                 value = number;
                 BackColor = DefaultColor;
                 if (ValueChanged != null) ValueChanged(this, EventArgs.Empty);
-                if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("Value"));
+                //if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("Value"));
 
                 // make text as user may have entered just a number
                 allowTextUpdateEvent = false;
@@ -455,11 +475,18 @@ namespace NumericUnit
             if (!allowTextUpdateEvent) return;
             bool allowed = false;
             double number;
-            
-            allowed = extractValue(out number);
 
-            BackColor = !internalSet ? (allowed ? CorrectColor : IncorrectColor) : DefaultColor;
-            internalSet = false;
+            // if this was set externally..
+            if (internalSet)
+            {
+                BackColor = DefaultColor;
+            }
+            else
+            {
+                allowed = extractValue(out number);
+                BackColor = allowed ? CorrectColor : IncorrectColor;
+                internalSet = false;
+            }
 
             // base
             base.OnTextChanged(e);
@@ -497,7 +524,7 @@ namespace NumericUnit
                     number = number * unitValue;
 
                     // round to decimal places
-                    number = Math.Round(number, DecimalPlaces);
+                    //number = Math.Round(number, (int)DecimalPlaces);
 
                     // within limits?
                     if (number >= Minimum && number <= Maximum)
@@ -538,13 +565,14 @@ namespace NumericUnit
                 }
 
                 // make text
+                double normedValue = value / unit.UnitValue;
                 if (DisplayFormat == null)
                 {
-                    numberText = "" + value / unit.UnitValue + (unit.UnitString == "" ? "" : " " + unit.UnitString);
+                    numberText = normedValue.ToString("F" + DecimalPlaces) + (unit.UnitString == "" ? "" : " " + unit.UnitString);
                 }
                 else
                 {
-                    numberText = String.Format(DisplayFormat, value / unit.UnitValue, unit.UnitString);
+                    numberText = String.Format(DisplayFormat, normedValue, unit.UnitString);
                 }
             }
             else

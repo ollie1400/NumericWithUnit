@@ -12,13 +12,23 @@ namespace NumericUnitTest
 {
     public partial class Form1 : Form
     {
+        public string BoundText { get; set; }
+        public event EventHandler BoundTextChanged;
+
+        public double BoundValue { get; set; }
+        public event EventHandler BoundValueChanged;
+
         public Form1()
         {
             InitializeComponent();
+            BoundText = "BoundText";
             numericWithUnit1.Maximum = 0;
             numericWithUnit1.Maximum = 100;
             numericWithUnit1.Value = 0;
             numericWithUnit1.EnterPressed += NumericWithUnit1_EnterPressed;
+            
+            textBinding = new Binding("Text", this, "BoundText");
+            valueBinding = new Binding("Value", this, "BoundValue");
         }
 
         private void NumericWithUnit1_EnterPressed(object sender, EventArgs e)
@@ -59,6 +69,40 @@ namespace NumericUnitTest
         private void button4_Click(object sender, EventArgs e)
         {
             numericWithUnit1.Text = "3 s";
+        }
+
+        private void buttonSetBoundText_Click(object sender, EventArgs e)
+        {
+            BoundText = textBoundText.Text;
+            if (BoundTextChanged != null) BoundTextChanged(buttonSetBoundText, EventArgs.Empty);
+        }
+
+        Binding textBinding = null;
+        private void buttonBindText_Click(object sender, EventArgs e)
+        {
+            numericWithUnit1.DataBindings.Add(textBinding);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            textBoundText.Text = BoundText;
+        }
+
+        Binding valueBinding = null;
+        private void buttonBindValue_Click(object sender, EventArgs e)
+        {
+            numericWithUnit1.DataBindings.Add(valueBinding);
+        }
+
+        private void buttonSetBoundValue_Click(object sender, EventArgs e)
+        {
+            BoundValue = (double)numericBoundValue.Value;
+            if (BoundValueChanged != null) BoundValueChanged(buttonSetBoundValue, EventArgs.Empty);
+        }
+
+        private void buttonGetBoundValue_Click(object sender, EventArgs e)
+        {
+            numericBoundValue.Value = (decimal)BoundValue;
         }
     }
 }
