@@ -196,7 +196,7 @@ namespace NumericUnit
             }
         }
     
-        public uint _DecimalPlaces = 10;
+        public uint _DecimalPlaces = 3;
 
         [Description("The format string used to generate the UI Text.  Must be a valid format string for the arguments {0} being the double value, and {1} being a the unit string.")]
         [Category("Data")]
