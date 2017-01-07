@@ -278,7 +278,7 @@ namespace NumericUnit
             AllowedUnits.Add(new Unit());
             Minimum = 0;
             Maximum = 1;
-            _DecimalPlaces = 10;
+            _DecimalPlaces = 3;
             DisplayFormat = null;
             
             // defaults
